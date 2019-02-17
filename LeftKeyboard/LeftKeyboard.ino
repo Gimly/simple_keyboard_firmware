@@ -1,26 +1,27 @@
-/* @file MultiKey.ino
-|| @version 1.0
-|| @author Mark Stanley
-|| @contact mstanley@technologist.com
-||
-|| @description
-|| | The latest version, 3.0, of the keypad library supports up to 10
-|| | active keys all being pressed at the same time. This sketch is an
-|| | example of how you can get multiple key presses from a keypad or
-|| | keyboard.
-|| #
-*/
-
 #include <Keypad.h>
+#include <Wire.h>
 
-#define KEY_NON_US_BS  (100 | 0xF000)
-#define KEY_MENU       (101 | 0xF000)
+//#define KEY_NON_US_BS  (100 | 0xF000)
+//#define KEY_MENU       (101 | 0xF000)
+//#define KEY_FN 1
 
-const byte ROWS = 7; //four rows
-const byte COLS = 6; //three columns
-const int LAYOUT_NBR = 1;
+const byte LEFT_COLS = 7;
+const byte LEFT_ROWS = 6;
+const byte RIGHT_COLS = 11;
+const byte RIGHT_ROWS = 6;
+const int LAYOUT_NBR = 2;
+const byte I2C_ADDRESS = 8;
 
-uint16_t layouts[LAYOUT_NBR][ROWS*COLS]{
+uint16_t layoutsRight[LAYOUT_NBR][RIGHT_COLS*RIGHT_ROWS]{
+  {
+    KEY_ESC, KEY_TILDE, KEY_TAB, KEY_CAPS_LOCK, MODIFIERKEY_SHIFT, MODIFIERKEY_CTRL,
+    NO_KEY,  KEY_1,     KEY_Q,   KEY_A,         KEY_NON_US_BS,     MODIFIERKEY_GUI,
+    KEY_F1,  KEY_2,     KEY_W,   KEY_S,         KEY_Z,             NO_KEY,
+    KEY_F2,  KEY_3,     KEY_E,   KEY_D,         KEY_X,             MODIFIERKEY_ALT,
+    KEY_F3,  KEY_4,     NO_KEY,  NO_KEY,        KEY_C,             KEY_SPACE,
+    KEY_F4,  KEY_5,     KEY_R,   KEY_F,         KEY_V,             NO_KEY,
+    NO_KEY,  KEY_6,     KEY_T,   KEY_G,         KEY_B,             NO_KEY
+  },
   {
     KEY_ESC, KEY_TILDE, KEY_TAB, KEY_CAPS_LOCK, MODIFIERKEY_SHIFT, MODIFIERKEY_CTRL,
     NO_KEY,  KEY_1,     KEY_Q,   KEY_A,         KEY_NON_US_BS,     MODIFIERKEY_GUI,
@@ -32,32 +33,65 @@ uint16_t layouts[LAYOUT_NBR][ROWS*COLS]{
   }
 };
 
-char keys[ROWS][COLS] = {
-{'A','B','C', 'D', 'E', 'F'},
-{'G','H','I', 'J', 'K', 'L'},
-{'M','N','O', 'P', 'Q', 'R'},
-{'S','T','U', 'V', 'W', 'X'},
-{'Y','Z','a', 'b', 'c', 'd'},
-{'e','f','g', 'h', 'i', 'j'},
-{'k','l','m', 'n', 'o', 'p'}
+uint16_t layoutsLeft[LAYOUT_NBR][RIGHT_COLS*RIGHT_ROWS]{
+  {
+    KEY_F5,          KEY_7,         KEY_Y,           KEY_H,         KEY_N,                   KEY_SPACE,
+    KEY_F6,          KEY_8,         KEY_U,           KEY_J,         KEY_M,                   1,
+    KEY_F7,          KEY_9,         KEY_I,           KEY_K,         KEY_COMMA,               NO_KEY,
+    KEY_F8,          KEY_0,         KEY_O,           KEY_L,         KEY_PERIOD,              MODIFIERKEY_RIGHT_ALT,
+    KEY_F9,          KEY_MINUS,     KEY_P,           KEY_SEMICOLON, KEY_SLASH,               MODIFIERKEY_RIGHT_GUI,
+    KEY_F10,         KEY_EQUAL,     KEY_LEFT_BRACE,  KEY_QUOTE,     NO_KEY,                  NO_KEY,
+    KEY_F11,         KEY_BACKSPACE, KEY_RIGHT_BRACE, KEY_TILDE,     MODIFIERKEY_RIGHT_SHIFT, KEY_MENU,
+    KEY_F12,         NO_KEY,        KEY_ENTER,       NO_KEY,        NO_KEY,                  MODIFIERKEY_RIGHT_CTRL,
+    KEY_PRINTSCREEN, KEY_INSERT,    KEY_DELETE,      NO_KEY,        NO_KEY,                  KEY_LEFT,
+    KEY_SCROLL_LOCK, KEY_HOME,      KEY_END,         NO_KEY,        KEY_UP,                  KEY_DOWN,
+    KEY_PAUSE,       KEY_PAGE_UP,   KEY_PAGE_DOWN,   NO_KEY,        NO_KEY,                  KEY_RIGHT
+  },
+  {
+    KEY_F5,          KEY_7,         KEY_Y,           KEY_H,         KEY_N,                   0,
+    KEY_F6,          KEY_8,         KEY_U,           KEY_J,         KEY_M,                   KEYPAD_0,
+    KEY_F7,          KEY_9,         KEY_I,           KEY_K,         KEY_COMMA,               NO_KEY,
+    KEY_F8,          KEY_0,         KEY_O,           KEY_L,         KEY_PERIOD,              KEYPAD_PERIOD,
+    KEY_F9,          KEY_MINUS,     KEY_P,           KEY_SEMICOLON, KEY_SLASH,               KEYPAD_ENTER,
+    KEY_F10,         KEY_EQUAL,     KEY_LEFT_BRACE,  KEY_QUOTE,     NO_KEY,                  NO_KEY,
+    KEY_F11,         KEY_BACKSPACE, KEY_RIGHT_BRACE, KEY_TILDE,     MODIFIERKEY_RIGHT_SHIFT, KEY_MENU,
+    KEY_F12,         NO_KEY,        KEY_ENTER,       NO_KEY,        NO_KEY,                  MODIFIERKEY_RIGHT_CTRL,
+    KEY_PRINTSCREEN, KEY_INSERT,    KEY_DELETE,      NO_KEY,        NO_KEY,                  KEY_LEFT,
+    KEY_SCROLL_LOCK, KEY_HOME,      KEY_END,         NO_KEY,        KEY_UP,                  KEY_DOWN,
+    KEY_PAUSE,       KEY_PAGE_UP,   KEY_PAGE_DOWN,   NO_KEY,        NO_KEY,                  KEY_RIGHT
+  }
 };
-byte colPins[COLS] = {21, 20, 19, 18, 17, 16}; //connect to the row pinouts of the kpd
-byte rowPins[ROWS] = { 9, 10, 11, 13, 14, 15, 12}; //connect to the column pinouts of the kpd
 
-Keypad kpd = Keypad( makeKeymap(keys), rowPins, colPins, ROWS, COLS );
+char keys[RIGHT_COLS][RIGHT_ROWS] = {
+{'A', 'B', 'C', 'D', 'E', 'F'},
+{'G', 'H', 'I', 'J', 'K', 'L'},
+{'M', 'N', 'O', 'P', 'Q', 'R'},
+{'S', 'T', 'U', 'V', 'W', 'X'},
+{'Y', 'Z', 'a', 'b', 'c', 'd'},
+{'e', 'f', 'g', 'h', 'i', 'j'},
+{'k', 'l', 'm', 'n', 'o', 'p'}
+};
+byte rowPins[RIGHT_ROWS] = {21, 20, 19, 18, 17, 16};
+byte colPins[RIGHT_COLS] = { 9, 22, 11, 13, 14, 15, 12};
+
+Keypad kpd = Keypad( makeKeymap(keys), colPins, rowPins, RIGHT_COLS, RIGHT_ROWS );
 
 unsigned long loopCount;
 unsigned long startTime;
 String msg;
-byte currentLayout = 0;
+byte currentLayout;
 
 void setup() {
     Serial.begin(9600);
+    
+    Wire.begin(I2C_ADDRESS);
+    Wire.onReceive(receiveKey);
+    
     loopCount = 0;
     startTime = millis();
     msg = "";
+    currentLayout = 0;
 }
-
 
 void loop() {
     loopCount++;
@@ -67,7 +101,7 @@ void loop() {
         startTime = millis();
         loopCount = 0;
     }
-
+    
     // Fills kpd.key[ ] array with up-to 10 active keys.
     // Returns true if there are ANY active keys.
     if (kpd.getKeys())
@@ -75,7 +109,7 @@ void loop() {
         for (int i=0; i<LIST_MAX; i++)   // Scan the whole key list.
         {
             char keyPressed = kpd.key[i].kchar;
-            uint16_t keyChar = layouts[currentLayout][kpd.key[i].kcode];
+            uint16_t keyChar = layoutsRight[currentLayout][kpd.key[i].kcode];
             
             if ( kpd.key[i].stateChanged )   // Only find keys that have changed state.
             {             
@@ -101,3 +135,34 @@ void loop() {
         }
     }
 }  // End loop
+
+void receiveKey(int howMany) {
+  int x = Wire.read();    // receive byte as an integer
+  uint16_t keyChar;
+  if(x < 128)
+  {
+    keyChar = layoutsLeft[currentLayout][x];
+    if(keyChar < LAYOUT_NBR){
+      Serial.print("Switching layout to");
+      Serial.println(keyChar);
+      currentLayout = keyChar;
+    }
+    else {
+      Keyboard.press(keyChar);
+      Serial.print("Key ");
+      Serial.print(x);
+      Serial.println(" PRESSED.");
+    }
+  }
+  else
+  {
+    keyChar = layoutsLeft[currentLayout][x - 128];
+    
+    if(keyChar > LAYOUT_NBR){  
+      Keyboard.release(keyChar);
+      Serial.print("Key ");
+      Serial.print(x - 128);
+      Serial.println(" RELEASED.");
+    }
+  }
+}
