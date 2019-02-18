@@ -5,6 +5,8 @@
 //#define KEY_MENU       (101 | 0xF000)
 //#define KEY_FN 1
 
+#define STR_PRODUCT "Gimly Split Mech Keyboard"
+
 const byte LEFT_COLS = 7;
 const byte LEFT_ROWS = 6;
 const byte RIGHT_COLS = 11;
@@ -36,12 +38,12 @@ uint16_t layoutsRight[LAYOUT_NBR][RIGHT_COLS*RIGHT_ROWS]{
 uint16_t layoutsLeft[LAYOUT_NBR][RIGHT_COLS*RIGHT_ROWS]{
   {
     KEY_F5,          KEY_7,         KEY_Y,           KEY_H,         KEY_N,                   KEY_SPACE,
-    KEY_F6,          KEY_8,         KEY_U,           KEY_J,         KEY_M,                   1,
+    KEY_F6,          KEY_8,         KEY_U,           KEY_J,         KEY_M,                   MODIFIERKEY_RIGHT_ALT,
     KEY_F7,          KEY_9,         KEY_I,           KEY_K,         KEY_COMMA,               NO_KEY,
-    KEY_F8,          KEY_0,         KEY_O,           KEY_L,         KEY_PERIOD,              MODIFIERKEY_RIGHT_ALT,
+    KEY_F8,          KEY_0,         KEY_O,           KEY_L,         KEY_PERIOD,              1,
     KEY_F9,          KEY_MINUS,     KEY_P,           KEY_SEMICOLON, KEY_SLASH,               MODIFIERKEY_RIGHT_GUI,
     KEY_F10,         KEY_EQUAL,     KEY_LEFT_BRACE,  KEY_QUOTE,     NO_KEY,                  NO_KEY,
-    KEY_F11,         KEY_BACKSPACE, KEY_RIGHT_BRACE, KEY_TILDE,     MODIFIERKEY_RIGHT_SHIFT, KEY_MENU,
+    KEY_F11,         KEY_BACKSPACE, KEY_RIGHT_BRACE, KEY_BACKSLASH, MODIFIERKEY_RIGHT_SHIFT, KEY_MENU,
     KEY_F12,         NO_KEY,        KEY_ENTER,       NO_KEY,        NO_KEY,                  MODIFIERKEY_RIGHT_CTRL,
     KEY_PRINTSCREEN, KEY_INSERT,    KEY_DELETE,      NO_KEY,        NO_KEY,                  KEY_LEFT,
     KEY_SCROLL_LOCK, KEY_HOME,      KEY_END,         NO_KEY,        KEY_UP,                  KEY_DOWN,
@@ -49,12 +51,12 @@ uint16_t layoutsLeft[LAYOUT_NBR][RIGHT_COLS*RIGHT_ROWS]{
   },
   {
     KEY_F5,          KEY_7,         KEY_Y,           KEY_H,         KEY_N,                   0,
-    KEY_F6,          KEY_8,         KEY_U,           KEY_J,         KEY_M,                   KEYPAD_0,
-    KEY_F7,          KEY_9,         KEY_I,           KEY_K,         KEY_COMMA,               NO_KEY,
-    KEY_F8,          KEY_0,         KEY_O,           KEY_L,         KEY_PERIOD,              KEYPAD_PERIOD,
-    KEY_F9,          KEY_MINUS,     KEY_P,           KEY_SEMICOLON, KEY_SLASH,               KEYPAD_ENTER,
-    KEY_F10,         KEY_EQUAL,     KEY_LEFT_BRACE,  KEY_QUOTE,     NO_KEY,                  NO_KEY,
-    KEY_F11,         KEY_BACKSPACE, KEY_RIGHT_BRACE, KEY_TILDE,     MODIFIERKEY_RIGHT_SHIFT, KEY_MENU,
+    KEY_F6,          KEYPAD_SLASH,  KEY_U,           KEY_J,         KEY_M,                   KEYPAD_0,
+    KEY_F7,          KEYPAD_ASTERIX,KEYPAD_7,        KEYPAD_4,      KEYPAD_1,                NO_KEY,
+    KEY_F8,          KEYPAD_MINUS,  KEYPAD_8,        KEYPAD_5,      KEYPAD_2,                KEYPAD_PERIOD,
+    KEY_F9,          KEY_MINUS,     KEYPAD_9,        KEYPAD_6,      KEYPAD_3,                KEYPAD_ENTER,
+    KEY_F10,         KEY_EQUAL,     KEYPAD_MINUS,    KEYPAD_PLUS,   NO_KEY,                  NO_KEY,
+    KEY_F11,         KEY_BACKSPACE, KEY_RIGHT_BRACE, KEY_BACKSLASH, KEYPAD_PLUS,             KEY_MENU,
     KEY_F12,         NO_KEY,        KEY_ENTER,       NO_KEY,        NO_KEY,                  MODIFIERKEY_RIGHT_CTRL,
     KEY_PRINTSCREEN, KEY_INSERT,    KEY_DELETE,      NO_KEY,        NO_KEY,                  KEY_LEFT,
     KEY_SCROLL_LOCK, KEY_HOME,      KEY_END,         NO_KEY,        KEY_UP,                  KEY_DOWN,
